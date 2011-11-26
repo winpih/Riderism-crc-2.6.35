@@ -25,6 +25,7 @@
 #include "pm.h"
 #include "scm-boot.h"
 
+#define SECONDARY_CPU_WAIT_MS 10
 
 int pen_release = -1;
 
@@ -107,9 +108,9 @@ int boot_secondary(unsigned int cpu, struct task_struct *idle)
 	while (pen_release != 0xFFFFFFFF) {
 		dmac_inv_range((void *)&pen_release,
 			       (void *)(&pen_release+sizeof(pen_release)));
-			usleep(500);
-			if (cnt++ >= 10)
-				break;
+		msleep_interruptible(1);
+		if (cnt++ >= SECONDARY_CPU_WAIT_MS)
+			break;
 	}
 
 	return 0;
